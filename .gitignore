@@ -19,5 +19,9 @@ data/embeddings/
 # ===== OS =====
 .DS_Store
 Thumbs.db
+# ignore local extra files
 project_requirement.txt
 takemanually.py
+.idea/
+.vscode/
+AMS.ico

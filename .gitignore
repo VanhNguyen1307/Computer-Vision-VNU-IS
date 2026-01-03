@@ -19,3 +19,5 @@ data/embeddings/
 # ===== OS =====
 .DS_Store
 Thumbs.db
+project_requirement.txt
+takemanually.py

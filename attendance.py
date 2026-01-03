@@ -14,7 +14,6 @@ import pyttsx3
 # project module
 import show_attendance
 import takeImage
-import trainImage
 import automaticAttedance
 
 # engine = pyttsx3.init()
@@ -254,7 +253,7 @@ def TakeImageUI():
     # image
     takeImg = tk.Button(
         ImageUI,
-        text="Take Image",
+        text="Build Embeddings",
         command=take_image,
         bd=10,
         font=("Verdana", 18, "bold"),
@@ -267,13 +266,25 @@ def TakeImageUI():
     takeImg.place(x=130, y=350)
 
     def train_image():
-        trainImage.TrainImage(
-            haarcasecade_path,
-            trainimage_path,
-            trainimagelabel_path,
-            message,
-            text_to_speech,
-        )
+        """NEW: Build FaceNet embeddings from data/registered_faces
+        """
+    try:
+        message.configure(text="Building embeddings... Please wait!")
+        text_to_speech("Building embeddings. Please wait.")
+
+        exit_code = os.system("python -u scripts/build_embeddings.py")
+
+        if exit_code == 0:
+            message.configure(text="Embeddings built successfully ✅")
+            text_to_speech("Embeddings built successfully.")
+        else:
+            message.configure(text="Embedding build failed  (check terminal)")
+            text_to_speech("Embedding build failed. Please check terminal.")
+
+    except Exception as ex:
+        message.configure(text=f"Error: {ex}")
+        text_to_speech(f"Error building embeddings: {ex}")
+
 
     # train Image function call
     trainImg = tk.Button(

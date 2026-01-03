@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Attendance Web (YOLO + FaceNet + Liveness)</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>✅ Attendance Web</h1>
+    <p>YOLO Face + FaceNet + Blink Liveness</p>
+
+    <!-- ================= Attendance Controls ================= -->
+    <h2>📌 Attendance</h2>
+    <div class="controls">
+      <label>Subject:</label>
+      <input id="subject" placeholder="e.g. Computer Vision" />
+      <button id="startBtn">Start Attendance</button>
+      <button id="stopBtn" disabled>Stop</button>
+    </div>
+
+    <div class="video-box">
+      <video id="video" autoplay playsinline></video>
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="status">
+      <h3>Status:</h3>
+      <pre id="statusText">Not started</pre>
+    </div>
+
+    <hr style="margin:30px 0; opacity:0.3"/>
+
+    <!-- ================= Register Controls ================= -->
+    <h2>➕ Register New Student</h2>
+
+    <div style="margin-bottom: 10px;">
+      <label>Subject:</label>
+      <input type="text" id="regSubject" placeholder="e.g. Computer Vision" />
+    </div>
+
+    <div style="margin-bottom: 10px;">
+      <label>Enrollment:</label>
+      <input type="text" id="regEnrollment" placeholder="e.g. 22070679" />
+    </div>
+
+    <div style="margin-bottom: 10px;">
+      <label>Name:</label>
+      <input type="text" id="regName" placeholder="e.g. Nguyen Viet Anh" />
+    </div>
+
+    <button id="regStartBtn">Start Register</button>
+    <button id="regStopBtn" disabled>Stop Register</button>
+
+    <p id="regStatusText" style="white-space: pre-line; font-weight: bold; color: cyan;"></p>
+
+    <hr style="margin:30px 0; opacity:0.3"/>
+
+    <!-- ================= Delete Controls ================= -->
+    <h2>🗑️ Delete Registered Student</h2>
+
+    <div style="margin-bottom: 10px;">
+      <label>Subject:</label>
+      <input type="text" id="delSubject" placeholder="e.g. Computer Vision" />
+      <button id="loadStudentBtn">Load Students</button>
+    </div>
+
+    <select id="studentSelect" style="width: 320px; padding: 6px;">
+      <option value="">-- Select student --</option>
+    </select>
+
+    <button id="deleteStudentBtn" style="margin-left: 10px;">Delete</button>
+
+    <p id="deleteStatusText" style="white-space: pre-line; font-weight: bold; color: orange;"></p>
+  </div>
+
+  <hr />
+
+  <h2>📋 Registered Students (by Subject)</h2>
+
+  <div style="margin-bottom: 10px;">
+  <label>Subject:</label>
+  <input type="text" id="listSubject" placeholder="e.g. Computer Vision" />
+  <button id="loadStudentsBtn">Load Students</button>
+</div>
+
+<div id="studentsBox" style="margin-top: 10px;"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

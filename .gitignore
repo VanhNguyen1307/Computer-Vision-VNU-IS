@@ -9,11 +9,13 @@ __pycache__/
 .venv/
 venv/
 
-# ===== OS / IDE =====
-.vscode/
-.idea/
-.DS_Store
+# ===== Data / Attendance =====
+Attendance/
+StudentDetails/studentdetails.csv
+TrainingImageLabel/Trainner.yml
+data/registered_faces/
+data/embeddings/
 
-# ===== Next.js build cache (old project) =====
-frontend/.next/
-frontend/node_modules/
+# ===== OS =====
+.DS_Store
+Thumbs.db

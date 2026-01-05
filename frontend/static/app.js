@@ -95,7 +95,7 @@ async function sendFrame() {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     if (!data.ok) {
-      statusText.textContent = `❌ Error: ${data.error}`;
+      statusText.textContent = `❌ Error: ${data.error || data.detail || "Unknown error"}`;
       return;
     }
 
@@ -118,7 +118,7 @@ async function sendFrame() {
         3
       )}\nLiveness: ${data.liveness}\n${data.info}`;
   } catch (err) {
-    statusText.textContent = `❌ Fetch error: ${err}`;
+    statusText.textContent = `❌ Fetch error: ${err.message || err}`;
   }
 }
 
@@ -139,13 +139,13 @@ startBtn.addEventListener("click", async () => {
 
     const data = await res.json();
     if (!data.ok) {
-      alert("❌ Cannot start session: " + data.error);
+      alert("❌ Cannot start session: " + (data.error || data.detail));
       return;
     }
 
     sessionId = data.session_id;
   } catch (err) {
-    alert("❌ Start session error: " + err);
+    alert("❌ Start session error: " + (err.message || err));
     return;
   }
 
@@ -187,10 +187,10 @@ stopBtn.addEventListener("click", async () => {
         statusText.textContent =
           `✅ Attendance saved!\nCSV: ${stopData.csv_path}\nDownload: http://localhost:8000${stopData.download_url}`;
       } else {
-        statusText.textContent = `❌ Stop error: ${stopData.error}`;
+        statusText.textContent = `❌ Stop error: ${stopData.error || stopData.detail}`;
       }
     } catch (err) {
-      statusText.textContent = `❌ Stop fetch error: ${err}`;
+      statusText.textContent = `❌ Stop fetch error: ${err.message || err}`;
     }
   } else {
     statusText.textContent = "Stopped. (No sessionId)";
@@ -209,7 +209,7 @@ let regTimer = null;
 let regCount = 0;
 const REG_TARGET = 10;
 
-// ✅ send register frame (IMPORTANT: must call /api/register/capture)
+// ✅ send register frame (CALL /api/register/frame)
 async function sendRegisterFrame() {
   if (!regRunning) return;
   if (!registerId) return;
@@ -226,7 +226,7 @@ async function sendRegisterFrame() {
   formData.append("register_id", registerId);
 
   try {
-    const res = await fetch("/api/register/capture", {
+    const res = await fetch("/api/register/frame", {
       method: "POST",
       body: formData
     });
@@ -234,7 +234,7 @@ async function sendRegisterFrame() {
     const data = await res.json();
 
     if (!data.ok) {
-      regStatusText.textContent = `❌ Capture error: ${data.error}`;
+      regStatusText.textContent = `❌ Capture error: ${data.error || data.detail || "Unknown error"}`;
       return;
     }
 
@@ -258,7 +258,7 @@ async function sendRegisterFrame() {
       await finishRegister();
     }
   } catch (err) {
-    regStatusText.textContent = `❌ Capture fetch error: ${err}`;
+    regStatusText.textContent = `❌ Capture fetch error: ${err.message || err}`;
   }
 }
 
@@ -276,7 +276,7 @@ async function finishRegister() {
     const data = await res.json();
 
     if (!data.ok) {
-      regStatusText.textContent = `❌ Finish error: ${data.error}`;
+      regStatusText.textContent = `❌ Finish error: ${data.error || data.detail}`;
       regStartBtn.disabled = false;
       return;
     }
@@ -284,7 +284,7 @@ async function finishRegister() {
     regStatusText.textContent =
       `🎉 Register completed!\nStudent: ${data.enrollment}\nEmbedding built ✅`;
   } catch (err) {
-    regStatusText.textContent = `❌ Finish fetch error: ${err}`;
+    regStatusText.textContent = `❌ Finish fetch error: ${err.message || err}`;
   }
 
   registerId = null;
@@ -320,7 +320,7 @@ regStartBtn.addEventListener("click", async () => {
     const data = await res.json();
 
     if (!data.ok) {
-      regStatusText.textContent = `❌ Start error: ${data.error}`;
+      regStatusText.textContent = `❌ Start error: ${data.error || data.detail}`;
       return;
     }
 
@@ -329,7 +329,7 @@ regStartBtn.addEventListener("click", async () => {
       `✅ Register started!\nID: ${registerId}\nAuto capturing faces...`;
 
   } catch (err) {
-    regStatusText.textContent = `❌ Start fetch error: ${err}`;
+    regStatusText.textContent = `❌ Start fetch error: ${err.message || err}`;
     return;
   }
 
@@ -385,7 +385,7 @@ loadStudentBtn.addEventListener("click", async () => {
     const data = await res.json();
 
     if (!data.ok) {
-      deleteStatusText.textContent = `❌ Error: ${data.error}`;
+      deleteStatusText.textContent = `❌ Error: ${data.error || data.detail}`;
       return;
     }
 
@@ -400,7 +400,7 @@ loadStudentBtn.addEventListener("click", async () => {
     deleteStatusText.textContent = `✅ Loaded ${data.students.length} students`;
 
   } catch (err) {
-    deleteStatusText.textContent = `❌ Fetch error: ${err}`;
+    deleteStatusText.textContent = `❌ Fetch error: ${err.message || err}`;
   }
 });
 
@@ -427,7 +427,7 @@ deleteStudentBtn.addEventListener("click", async () => {
     const data = await res.json();
 
     if (!data.ok) {
-      deleteStatusText.textContent = `❌ Error: ${data.error}`;
+      deleteStatusText.textContent = `❌ Error: ${data.error || data.detail}`;
       return;
     }
 
@@ -435,110 +435,6 @@ deleteStudentBtn.addEventListener("click", async () => {
     loadStudentBtn.click();
 
   } catch (err) {
-    deleteStatusText.textContent = `❌ Fetch error: ${err}`;
+    deleteStatusText.textContent = `❌ Fetch error: ${err.message || err}`;
   }
 });
-// ============================
-// ✅ Student List + Delete UI
-// ============================
-
-const loadStudentsBtn = document.getElementById("loadStudentsBtn");
-const listSubjectInput = document.getElementById("listSubject");
-const studentsBox = document.getElementById("studentsBox");
-
-async function loadStudents() {
-  const subject = listSubjectInput.value.trim();
-  if (!subject) {
-    alert("Please enter subject to load students!");
-    return;
-  }
-
-  studentsBox.innerHTML = "⏳ Loading students...";
-
-  try {
-    const res = await fetch(`/api/students?subject=${encodeURIComponent(subject)}`);
-    const data = await res.json();
-
-    if (!data.ok) {
-      studentsBox.innerHTML = `❌ Error: ${data.error}`;
-      return;
-    }
-
-    if (!data.students || data.students.length === 0) {
-      studentsBox.innerHTML = "✅ No students registered for this subject.";
-      return;
-    }
-
-    // render list
-    let html = `<table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%; color: white;">
-        <tr style="background:#333;">
-          <th>Enrollment</th>
-          <th>Name</th>
-          <th>Action</th>
-        </tr>`;
-
-    data.students.forEach(st => {
-      html += `
-        <tr>
-          <td>${st.enrollment}</td>
-          <td>${st.name}</td>
-          <td>
-            <button onclick="deleteStudent('${subject}', '${st.enrollment}')"
-              style="background:red; color:white; padding:6px 12px; border:none; cursor:pointer;">
-              Delete
-            </button>
-          </td>
-        </tr>`;
-    });
-
-    html += `</table>`;
-    studentsBox.innerHTML = html;
-
-  } catch (err) {
-    studentsBox.innerHTML = `❌ Fetch error: ${err}`;
-  }
-}
-
-async function deleteStudent(subject, enrollment) {
-  if (!confirm(`Delete student ${enrollment} in subject "${subject}"?`)) return;
-
-  studentsBox.innerHTML = `⏳ Deleting ${enrollment}...`;
-
-  try {
-    const res = await fetch("/api/student/delete", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ subject, enrollment })
-    });
-
-    const data = await res.json();
-
-    if (!data.ok) {
-      studentsBox.innerHTML = `❌ Delete error: ${data.error}`;
-      return;
-    }
-
-    studentsBox.innerHTML = `✅ Deleted ${enrollment}. Reloading list...`;
-    setTimeout(loadStudents, 800);
-
-  } catch (err) {
-    studentsBox.innerHTML = `❌ Delete fetch error: ${err}`;
-  }
-}
-
-if (loadStudentsBtn) {
-  loadStudentsBtn.addEventListener("click", loadStudents);
-}
-
-// ✅ Auto-load students when typing subject (debounce)
-let loadTimer = null;
-if (listSubjectInput) {
-  listSubjectInput.addEventListener("input", () => {
-    if (loadTimer) clearTimeout(loadTimer);
-
-    loadTimer = setTimeout(() => {
-      if (listSubjectInput.value.trim()) loadStudents();
-    }, 500);
-  });
-}
-
